@@ -4,7 +4,11 @@
 		"$className": "DataModel",
 		"Lighting": {},
 		"ReplicatedFirst": {},
-		"ReplicatedStorage": {},
+		"ReplicatedStorage": {
+            "Packages": {
+                "$path": "./Packages"
+            }
+        },
 		"RobloxPluginGuiService": {},
 		"ServerScriptService": {},
 		"ServerStorage": {},
