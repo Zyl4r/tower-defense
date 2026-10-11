@@ -4,11 +4,7 @@
 		"$className": "DataModel",
 		"Lighting": {},
 		"ReplicatedFirst": {},
-		"ReplicatedStorage": {
-            "Packages": {
-                "$path": "./Packages"
-            }
-        },
+		"ReplicatedStorage": {},
 		"RobloxPluginGuiService": {},
 		"ServerScriptService": {},
 		"ServerStorage": {},
@@ -17,7 +13,34 @@
 		"StarterPack": {},
 		"StarterPlayer": {
 			"StarterCharacterScripts": {},
-			"StarterPlayerScripts": {}
+			"StarterPlayerScripts": {
+				"client": {
+					"$className": "Folder",
+					"$ignoreUnknownInstances": false,
+					"app": {
+						"$ignoreUnknownInstances": false,
+						"$path": {
+							"optional": "src/app/client"
+						}
+					},
+					"features": {
+						"$className": "Folder",
+						"$ignoreUnknownInstances": false,
+						"towers": {
+							"$ignoreUnknownInstances": false,
+							"$path": {
+								"optional": "src/features/towers/client"
+							}
+						}
+					},
+					"utils": {
+						"$ignoreUnknownInstances": false,
+						"$path": {
+							"optional": "src/utils/client"
+						}
+					}
+				}
+			}
 		},
 		"Workspace": {}
 	}
