@@ -9,7 +9,12 @@
 	"project": {
 		"name": "tower-defense",
 		"tree": {
-			"$className": "DataModel"
+			"$className": "DataModel",
+			"ReplicatedStorage": {
+				"Packages": {
+					"$path": "Packages"
+				}
+			}
 		}
 	}
 }

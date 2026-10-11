@@ -4,7 +4,25 @@
 		"$className": "DataModel",
 		"Lighting": {},
 		"ReplicatedFirst": {},
-		"ReplicatedStorage": {},
+		"ReplicatedStorage": {
+			"Packages": {
+				"$path": "Packages"
+			},
+			"shared": {
+				"$className": "Folder",
+				"$ignoreUnknownInstances": false,
+				"features": {
+					"$className": "Folder",
+					"$ignoreUnknownInstances": false,
+					"towers": {
+						"$ignoreUnknownInstances": false,
+						"$path": {
+							"optional": "src/features/towers/shared"
+						}
+					}
+				}
+			}
+		},
 		"RobloxPluginGuiService": {},
 		"ServerScriptService": {},
 		"ServerStorage": {},
