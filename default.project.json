@@ -24,7 +24,27 @@
 			}
 		},
 		"RobloxPluginGuiService": {},
-		"ServerScriptService": {},
+		"ServerScriptService": {
+			"server": {
+				"$className": "Folder",
+				"$ignoreUnknownInstances": false,
+				"app": {
+					"$path": {
+						"optional": "src/app/server"
+					}
+				},
+				"features": {
+					"$className": "Folder",
+					"$ignoreUnknownInstances": false,
+					"towers": {
+						"$ignoreUnknownInstances": false,
+						"$path": {
+							"optional": "src/features/towers/server"
+						}
+					}
+				}
+			}
+		},
 		"ServerStorage": {},
 		"SoundService": {},
 		"StarterGui": {},
@@ -36,7 +56,6 @@
 					"$className": "Folder",
 					"$ignoreUnknownInstances": false,
 					"app": {
-						"$ignoreUnknownInstances": false,
 						"$path": {
 							"optional": "src/app/client"
 						}

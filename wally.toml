@@ -1,5 +1,5 @@
 [package]
-name = "pichau/tower-defense"
+name = "zylar/tower-defense"
 version = "0.1.0"
 registry = "https://github.com/UpliftGames/wally-index"
 realm = "shared"
