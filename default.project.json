@@ -7,20 +7,6 @@
 		"ReplicatedStorage": {
 			"Packages": {
 				"$path": "Packages"
-			},
-			"shared": {
-				"$className": "Folder",
-				"$ignoreUnknownInstances": false,
-				"features": {
-					"$className": "Folder",
-					"$ignoreUnknownInstances": false,
-					"towers": {
-						"$ignoreUnknownInstances": false,
-						"$path": {
-							"optional": "src/features/towers/shared"
-						}
-					}
-				}
 			}
 		},
 		"RobloxPluginGuiService": {},
@@ -35,22 +21,6 @@
 				"client": {
 					"$className": "Folder",
 					"$ignoreUnknownInstances": false,
-					"app": {
-						"$ignoreUnknownInstances": false,
-						"$path": {
-							"optional": "src/app/client"
-						}
-					},
-					"features": {
-						"$className": "Folder",
-						"$ignoreUnknownInstances": false,
-						"towers": {
-							"$ignoreUnknownInstances": false,
-							"$path": {
-								"optional": "src/features/towers/client"
-							}
-						}
-					},
 					"utils": {
 						"$ignoreUnknownInstances": false,
 						"$path": {
