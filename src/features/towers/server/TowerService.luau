@@ -40,7 +40,7 @@ function TowerService.ValidatePlacement(cf: CFrame): boolean
     return true
 end
 
-function TowerService.PlaceTower(towerId: string, cf: CFrame, owner: Player)
+function TowerService.PlaceTower(towerId: string, cf: CFrame, _owner: Player)
 	local isValid = TowerService.ValidatePlacement(cf)
 
 	if isValid then
