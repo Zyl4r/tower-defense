@@ -14,10 +14,10 @@
 				"features": {
 					"$className": "Folder",
 					"$ignoreUnknownInstances": false,
-					"towers": {
+					"placement": {
 						"$ignoreUnknownInstances": false,
 						"$path": {
-							"optional": "src/features/towers/shared"
+							"optional": "src/features/placement/shared"
 						}
 					}
 				}
@@ -25,6 +25,9 @@
 		},
 		"RobloxPluginGuiService": {},
 		"ServerScriptService": {
+			"ServerPackages": {
+				"$path": "ServerPackages"
+			},
 			"server": {
 				"$className": "Folder",
 				"$ignoreUnknownInstances": false,
@@ -33,13 +36,29 @@
 						"optional": "src/app/server"
 					}
 				},
+				"core": {
+					"$className": "Folder",
+					"$ignoreUnknownInstances": false,
+					"commands": {
+						"$ignoreUnknownInstances": false,
+						"$path": {
+							"optional": "src/core/commands/server"
+						}
+					}
+				},
 				"features": {
 					"$className": "Folder",
 					"$ignoreUnknownInstances": false,
-					"towers": {
+					"enemy": {
 						"$ignoreUnknownInstances": false,
 						"$path": {
-							"optional": "src/features/towers/server"
+							"optional": "src/features/enemy/server"
+						}
+					},
+					"placement": {
+						"$ignoreUnknownInstances": false,
+						"$path": {
+							"optional": "src/features/placement/server"
 						}
 					}
 				}
@@ -63,10 +82,10 @@
 					"features": {
 						"$className": "Folder",
 						"$ignoreUnknownInstances": false,
-						"towers": {
+						"placement": {
 							"$ignoreUnknownInstances": false,
 							"$path": {
-								"optional": "src/features/towers/client"
+								"optional": "src/features/placement/client"
 							}
 						}
 					},

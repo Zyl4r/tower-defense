@@ -1,6 +1,6 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
-local TowerPackets = require(ReplicatedStorage.shared.features.towers.TowerPackets)
+local TowerPackets = require(ReplicatedStorage.shared.features.placement.PlacementPackets)
 
 local TowerService = {}
 
