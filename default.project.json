@@ -11,9 +11,25 @@
 			"shared": {
 				"$className": "Folder",
 				"$ignoreUnknownInstances": false,
+				"core": {
+					"$className": "Folder",
+					"$ignoreUnknownInstances": false,
+					"helpers": {
+						"$ignoreUnknownInstances": false,
+						"$path": {
+							"optional": "src/core/helpers/shared"
+						}
+					}
+				},
 				"features": {
 					"$className": "Folder",
 					"$ignoreUnknownInstances": false,
+					"enemy": {
+						"$ignoreUnknownInstances": false,
+						"$path": {
+							"optional": "src/features/enemy/shared"
+						}
+					},
 					"placement": {
 						"$ignoreUnknownInstances": false,
 						"$path": {
@@ -79,20 +95,30 @@
 							"optional": "src/app/client"
 						}
 					},
+					"core": {
+						"$className": "Folder",
+						"$ignoreUnknownInstances": false,
+						"utils": {
+							"$ignoreUnknownInstances": false,
+							"$path": {
+								"optional": "src/core/utils/client"
+							}
+						}
+					},
 					"features": {
 						"$className": "Folder",
 						"$ignoreUnknownInstances": false,
+						"enemy": {
+							"$ignoreUnknownInstances": false,
+							"$path": {
+								"optional": "src/features/enemy/client"
+							}
+						},
 						"placement": {
 							"$ignoreUnknownInstances": false,
 							"$path": {
 								"optional": "src/features/placement/client"
 							}
-						}
-					},
-					"utils": {
-						"$ignoreUnknownInstances": false,
-						"$path": {
-							"optional": "src/utils/client"
 						}
 					}
 				}
