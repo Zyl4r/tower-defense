@@ -1,5 +1,7 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local ServerScriptService = game:GetService("ServerScriptService")
 
+local TowerService = require(ServerScriptService.server.features.towers.TowerService)
 local PlacementPackets = require(ReplicatedStorage.shared.features.placement.PlacementPackets)
 
 local PlacementService = {}
@@ -44,20 +46,17 @@ function PlacementService.ConfirmPlacement(towerId: string, cf: CFrame, _owner: 
 	local isValid = PlacementService.ValidatePlacement(cf)
 
 	if isValid then
-		PlacementPackets.packets.placeTower.sendToAll({
-			towerId = towerId,
-			cf = cf,
-		})
+		TowerService.SpawnTower(towerId, cf)
 	end
 end
 
 function PlacementService.Init()
-	PlacementPackets.packets.placeTower.listen(function(data: { cf: CFrame, towerId: string }, player: Player?)
+	PlacementPackets.packets.ValidatePlacement.listen(function(data: { cf: CFrame, towerId: string }, player: Player?)
 		if not player then
 			return
 		end
 
-		PlacementService.PlaceTower(data.towerId, data.cf, player)
+		PlacementService.ConfirmPlacement(data.towerId, data.cf, player)
 	end)
 end
 

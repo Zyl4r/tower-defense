@@ -35,6 +35,12 @@
 						"$path": {
 							"optional": "src/features/placement/shared"
 						}
+					},
+					"towers": {
+						"$ignoreUnknownInstances": false,
+						"$path": {
+							"optional": "src/features/towers/shared"
+						}
 					}
 				}
 			}
@@ -75,6 +81,12 @@
 						"$ignoreUnknownInstances": false,
 						"$path": {
 							"optional": "src/features/placement/server"
+						}
+					},
+					"towers": {
+						"$ignoreUnknownInstances": false,
+						"$path": {
+							"optional": "src/features/towers/server"
 						}
 					}
 				}

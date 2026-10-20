@@ -3,8 +3,9 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local StarterPlayer = game:GetService("StarterPlayer")
 
-local MouseUtils = require(StarterPlayer.StarterPlayerScripts.client.utils.MouseUtils)
+local MouseUtils = require(StarterPlayer.StarterPlayerScripts.client.core.utils.MouseUtils)
 local PlacementPackets = require(ReplicatedStorage.shared.features.placement.PlacementPackets)
+local TowerPackets = require(ReplicatedStorage.shared.features.towers.TowerPackets)
 
 local inputs = ReplicatedStorage.Inputs.Placement
 
@@ -44,7 +45,7 @@ function PlacementController.PlaceTower()
 		return
 	end
 
-	PlacementPackets.packets.placeTower.send({
+	PlacementPackets.packets.ValidatePlacement.send({
 		towerId = "",
 		cf = selectedTower.CFrame,
 	})
@@ -117,7 +118,7 @@ function PlacementController.Init()
 	inputs.RotateTower.Pressed:Connect(PlacementController.RotatePreview)
 	inputs.CancelPlacement.Pressed:Connect(PlacementController.CancelPreview)
 
-	PlacementPackets.packets.placeTower.listen(function(data: { cf: CFrame, towerId: string }, _: Player?)
+	TowerPackets.packets.spawnTower.listen(function(data: { cf: CFrame, towerId: string }, _: Player?)
 		--Get a tower model from ReplicatedStorage
 		local model = Instance.new("Part")
 		model.Size = Vector3.new(1, 3, 2)

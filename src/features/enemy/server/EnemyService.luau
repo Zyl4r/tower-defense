@@ -22,12 +22,16 @@ local enemies = {}
 
 local EnemyService = {}
 
+function EnemyService.GetEnemies()
+    return enemies
+end
+
 function EnemyService.SpawnEnemy()
     local newEnemy: Enemy = {
         Name = "Test",
         Health = 100,
         MaxHealth = 100,
-        WalkSpeed = 16,
+        WalkSpeed = 3,
         Id = "test",
 
         SpawnedAt = workspace:GetServerTimeNow(),
