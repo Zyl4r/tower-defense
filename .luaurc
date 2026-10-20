@@ -1,5 +1,4 @@
 {
-    "languageMode": "strict",
     "lint": {
         "UninitializedLocal": false
     }

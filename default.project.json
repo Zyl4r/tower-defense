@@ -7,10 +7,43 @@
 		"ReplicatedStorage": {
 			"Packages": {
 				"$path": "Packages"
+			},
+			"shared": {
+				"$className": "Folder",
+				"$ignoreUnknownInstances": false,
+				"core": {
+					"$className": "Folder",
+					"$ignoreUnknownInstances": false,
+					"helpers": {
+						"$ignoreUnknownInstances": false,
+						"$path": {
+							"optional": "src/core/helpers/shared"
+						}
+					}
+				},
+				"features": {
+					"$className": "Folder",
+					"$ignoreUnknownInstances": false,
+					"enemy": {
+						"$ignoreUnknownInstances": false,
+						"$path": {
+							"optional": "src/features/enemy/shared"
+						}
+					},
+					"placement": {
+						"$ignoreUnknownInstances": false,
+						"$path": {
+							"optional": "src/features/placement/shared"
+						}
+					}
+				}
 			}
 		},
 		"RobloxPluginGuiService": {},
 		"ServerScriptService": {
+			"ServerPackages": {
+				"$path": "ServerPackages"
+			},
 			"server": {
 				"$className": "Folder",
 				"$ignoreUnknownInstances": false,
@@ -19,13 +52,29 @@
 						"optional": "src/app/server"
 					}
 				},
+				"core": {
+					"$className": "Folder",
+					"$ignoreUnknownInstances": false,
+					"commands": {
+						"$ignoreUnknownInstances": false,
+						"$path": {
+							"optional": "src/core/commands/server"
+						}
+					}
+				},
 				"features": {
 					"$className": "Folder",
 					"$ignoreUnknownInstances": false,
-					"towers": {
+					"enemy": {
 						"$ignoreUnknownInstances": false,
 						"$path": {
-							"optional": "src/features/towers/server"
+							"optional": "src/features/enemy/server"
+						}
+					},
+					"placement": {
+						"$ignoreUnknownInstances": false,
+						"$path": {
+							"optional": "src/features/placement/server"
 						}
 					}
 				}
@@ -46,20 +95,30 @@
 							"optional": "src/app/client"
 						}
 					},
-					"features": {
+					"core": {
 						"$className": "Folder",
 						"$ignoreUnknownInstances": false,
-						"towers": {
+						"utils": {
 							"$ignoreUnknownInstances": false,
 							"$path": {
-								"optional": "src/features/towers/client"
+								"optional": "src/core/utils/client"
 							}
 						}
 					},
-					"utils": {
+					"features": {
+						"$className": "Folder",
 						"$ignoreUnknownInstances": false,
-						"$path": {
-							"optional": "src/utils/client"
+						"enemy": {
+							"$ignoreUnknownInstances": false,
+							"$path": {
+								"optional": "src/features/enemy/client"
+							}
+						},
+						"placement": {
+							"$ignoreUnknownInstances": false,
+							"$path": {
+								"optional": "src/features/placement/client"
+							}
 						}
 					}
 				}

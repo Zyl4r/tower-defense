@@ -4,7 +4,7 @@ local RunService = game:GetService("RunService")
 local StarterPlayer = game:GetService("StarterPlayer")
 
 local MouseUtils = require(StarterPlayer.StarterPlayerScripts.client.utils.MouseUtils)
-local TowerPackets = require(ReplicatedStorage.shared.features.towers.TowerPackets)
+local TowerPackets = require(ReplicatedStorage.shared.features.placement.PlacementPackets)
 
 local inputs = ReplicatedStorage.Inputs.Placement
 

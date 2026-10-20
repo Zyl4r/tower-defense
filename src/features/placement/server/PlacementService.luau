@@ -1,8 +1,8 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
-local TowerPackets = require(ReplicatedStorage.shared.features.towers.TowerPackets)
+local PlacementPackets = require(ReplicatedStorage.shared.features.placement.PlacementPackets)
 
-local TowerService = {}
+local PlacementService = {}
 
 function isPointInPart(point: Vector3, part: BasePart)
     local volumeSpacePoint = part.CFrame:PointToObjectSpace(point)
@@ -13,7 +13,7 @@ function isPointInPart(point: Vector3, part: BasePart)
        and math.abs(volumeSpacePoint.Z) <= part.Size.Z / 2
 end
 
-function TowerService.ValidatePlacement(cf: CFrame): boolean
+function PlacementService.ValidatePlacement(cf: CFrame): boolean
     local params = OverlapParams.new()
     params.FilterType = Enum.RaycastFilterType.Include
     params.FilterDescendantsInstances = { workspace.Map.Path.Validating }
@@ -40,25 +40,25 @@ function TowerService.ValidatePlacement(cf: CFrame): boolean
     return true
 end
 
-function TowerService.PlaceTower(towerId: string, cf: CFrame, _owner: Player)
-	local isValid = TowerService.ValidatePlacement(cf)
+function PlacementService.ConfirmPlacement(towerId: string, cf: CFrame, _owner: Player)
+	local isValid = PlacementService.ValidatePlacement(cf)
 
 	if isValid then
-		TowerPackets.packets.placeTower.sendToAll({
+		PlacementPackets.packets.placeTower.sendToAll({
 			towerId = towerId,
 			cf = cf,
 		})
 	end
 end
 
-function TowerService.Init()
-	TowerPackets.packets.placeTower.listen(function(data: { cf: CFrame, towerId: string }, player: Player?)
+function PlacementService.Init()
+	PlacementPackets.packets.placeTower.listen(function(data: { cf: CFrame, towerId: string }, player: Player?)
 		if not player then
 			return
 		end
 
-		TowerService.PlaceTower(data.towerId, data.cf, player)
+		PlacementService.PlaceTower(data.towerId, data.cf, player)
 	end)
 end
 
-return TowerService
+return PlacementService
