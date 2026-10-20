@@ -4,12 +4,12 @@ local RunService = game:GetService("RunService")
 local StarterPlayer = game:GetService("StarterPlayer")
 
 local MouseUtils = require(StarterPlayer.StarterPlayerScripts.client.utils.MouseUtils)
-local TowerPackets = require(ReplicatedStorage.shared.features.placement.PlacementPackets)
+local PlacementPackets = require(ReplicatedStorage.shared.features.placement.PlacementPackets)
 
 local inputs = ReplicatedStorage.Inputs.Placement
 
-local TowerController = {}
-TowerController.CurrentPreviewTower = nil :: BasePart?
+local PlacementController = {}
+PlacementController.CurrentPreviewTower = nil :: BasePart?
 
 function isPointInPart(point: Vector3, part: BasePart)
     local volumeSpacePoint = part.CFrame:PointToObjectSpace(point)
@@ -21,7 +21,7 @@ function isPointInPart(point: Vector3, part: BasePart)
 end
 
 
-function TowerController.RenderPreview(
+function PlacementController.RenderPreview(
 	_modelName: string,
 	_initialPosition: Vector3
 ): BasePart --Make it return a model later
@@ -37,35 +37,35 @@ function TowerController.RenderPreview(
 	return model
 end
 
-function TowerController.PlaceTower()
-	local selectedTower = TowerController.CurrentPreviewTower
+function PlacementController.PlaceTower()
+	local selectedTower = PlacementController.CurrentPreviewTower
 
 	if not selectedTower then
 		return
 	end
 
-	TowerPackets.packets.placeTower.send({
+	PlacementPackets.packets.placeTower.send({
 		towerId = "",
 		cf = selectedTower.CFrame,
 	})
 
-	TowerController.CancelPreview()
+	PlacementController.CancelPreview()
 end
 
-function TowerController.PreviewPlacement(_modelName: string)
-	if TowerController.CurrentPreviewTower then
-		TowerController.CancelPreview()
+function PlacementController.PreviewPlacement(_modelName: string)
+	if PlacementController.CurrentPreviewTower then
+		PlacementController.CancelPreview()
 	end
 
-	local currentTower = TowerController.RenderPreview("", MouseUtils.GetWorldPosition(workspace.Map))
-	TowerController.CurrentPreviewTower = currentTower
+	local currentTower = PlacementController.RenderPreview("", MouseUtils.GetWorldPosition(workspace.Map))
+	PlacementController.CurrentPreviewTower = currentTower
 
     workspace.Map.Path.Parts.UnavailableArea.Transparency = 0.5
 
 	local conn: RBXScriptConnection
 
 	conn = RunService.PreRender:Connect(function(_dt)
-		if not TowerController.CurrentPreviewTower then
+		if not PlacementController.CurrentPreviewTower then
 			conn:Disconnect()
 			return
 		end
@@ -88,8 +88,8 @@ function TowerController.PreviewPlacement(_modelName: string)
 	end)
 end
 
-function TowerController.RotatePreview()
-	local currentTower = TowerController.CurrentPreviewTower
+function PlacementController.RotatePreview()
+	local currentTower = PlacementController.CurrentPreviewTower
 
 	if not currentTower then
 		return
@@ -98,26 +98,26 @@ function TowerController.RotatePreview()
 	currentTower.CFrame = currentTower.CFrame * CFrame.Angles(0, math.rad(45), 0)
 end
 
-function TowerController.CancelPreview()
-	if not TowerController.CurrentPreviewTower then
+function PlacementController.CancelPreview()
+	if not PlacementController.CurrentPreviewTower then
 		return
 	end
 
-	TowerController.CurrentPreviewTower:Destroy()
-	TowerController.CurrentPreviewTower = nil
+	PlacementController.CurrentPreviewTower:Destroy()
+	PlacementController.CurrentPreviewTower = nil
     workspace.Map.Path.Parts.UnavailableArea.Transparency = 1
 end
 
-function TowerController.Init()
+function PlacementController.Init()
 	inputs.SelectTower.Pressed:Connect(function()
-		TowerController.PreviewPlacement("")
+		PlacementController.PreviewPlacement("")
 	end)
 
-	inputs.PlaceTower.Pressed:Connect(TowerController.PlaceTower)
-	inputs.RotateTower.Pressed:Connect(TowerController.RotatePreview)
-	inputs.CancelPlacement.Pressed:Connect(TowerController.CancelPreview)
+	inputs.PlaceTower.Pressed:Connect(PlacementController.PlaceTower)
+	inputs.RotateTower.Pressed:Connect(PlacementController.RotatePreview)
+	inputs.CancelPlacement.Pressed:Connect(PlacementController.CancelPreview)
 
-	TowerPackets.packets.placeTower.listen(function(data: { cf: CFrame, towerId: string }, _: Player?)
+	PlacementPackets.packets.placeTower.listen(function(data: { cf: CFrame, towerId: string }, _: Player?)
 		--Get a tower model from ReplicatedStorage
 		local model = Instance.new("Part")
 		model.Size = Vector3.new(1, 3, 2)
@@ -131,4 +131,4 @@ function TowerController.Init()
 	end)
 end
 
-return TowerController
+return PlacementController
