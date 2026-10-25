@@ -131,6 +131,12 @@
 							"$path": {
 								"optional": "src/features/placement/client"
 							}
+						},
+						"towers": {
+							"$ignoreUnknownInstances": false,
+							"$path": {
+								"optional": "src/features/towers/client"
+							}
 						}
 					}
 				}

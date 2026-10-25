@@ -6,83 +6,81 @@ local EnemyService = require(ServerScriptService.server.features.enemy.EnemyServ
 local TowerPackets = require(ReplicatedStorage.shared.features.towers.TowerPackets)
 
 export type Tower = {
-    Name: string,
-    Id: string,
-    Damage: number,
-    Rate: number,
-    Range: number,
-    Position: Vector3,
-    TargetMode: "First" | "Last" | "Strongest" | "Weakest",
-    LastDamage: number,
+	Name: string,
+	Id: string,
+	Damage: number,
+	Rate: number,
+	Range: number,
+	Position: Vector3,
+	TargetMode: "First" | "Last" | "Strongest" | "Weakest",
+	LastDamage: number,
 }
 
 local towers: { Tower } = {}
 
 local TowerService = {}
 
-local function getTarget(enemies, tower: Tower): EnemyService.Enemy?
+local function getTarget(enemies, tower: Tower): (EnemyService.Enemy?, string?)
 	local towerPos = tower.Position
-	local rangeSquared = tower.Range ^ 2 -- Square the range to avoid using .Magnitude
-	
+	local rangeSquared = tower.Range ^ 2
+
 	local bestEnemy = nil
-	local bestMetric = -1 -- Keeps track of "First", "Last", "Strongest", etc.
-	
-	for _, enemy in ipairs(enemies) do
-		-- Skip enemies that haven't initialized a position yet
-		if not enemy.Position then continue end 
-		
+	local bestMetric = -1
+    local index = nil
+
+	for id, enemy in enemies do
+		if not enemy.Position then
+			continue
+		end
+
 		-- Fast squared-distance calculation
 		local offset = enemy.Position - towerPos
 		local distanceSquared = (offset.X * offset.X) + (offset.Y * offset.Y) + (offset.Z * offset.Z)
-        local targetingMode = tower.TargetMode
-		
+		local targetingMode = tower.TargetMode
+
 		-- Is the enemy within the tower's circle?
 		if distanceSquared <= rangeSquared then
-			
 			if targetingMode == "First" then
 				-- "First" means the highest DistanceTravelled
 				if enemy.DistanceTravelled > bestMetric then
 					bestMetric = enemy.DistanceTravelled
 					bestEnemy = enemy
+                    index = id
 				end
-				
 			elseif targetingMode == "Last" then
 				-- "Last" means the lowest DistanceTravelled
 				if bestMetric == -1 or enemy.DistanceTravelled < bestMetric then
 					bestMetric = enemy.DistanceTravelled
 					bestEnemy = enemy
+                    index = id
 				end
-				
 			elseif targetingMode == "Strongest" then
 				-- "Strongest" looks at enemy health
 				if enemy.Health > bestMetric then
 					bestMetric = enemy.Health
 					bestEnemy = enemy
+                    index = id
 				end
 			end
-			
 		end
 	end
-	
-	return bestEnemy -- Returns the enemy data object (or nil if none in range)
+
+	return bestEnemy, index -- Returns the enemy data object (or nil if none in range)
 end
 
-
 function TowerService.SpawnTower(towerId: string, cf: CFrame)
-    local newTower: Tower = {
-        Name = "Test",
-        Id = towerId,
-        Damage = 2,
-        Rate = 0.5,
-        Range = 6,
-        Position = cf.Position,
-        TargetMode = "First",
-        LastDamage = os.clock()
-    }
+	local newTower: Tower = {
+		Name = "Test",
+		Id = towerId,
+		Damage = 2,
+		Rate = 1,
+		Range = 6,
+		Position = cf.Position,
+		TargetMode = "First",
+		LastDamage = os.clock(),
+	}
 
-    table.insert(towers, newTower)
-
-    print("Tower spawned at", cf.Position)
+	table.insert(towers, newTower)
 
 	TowerPackets.packets.spawnTower.sendToAll({
 		towerId = towerId,
@@ -91,24 +89,30 @@ function TowerService.SpawnTower(towerId: string, cf: CFrame)
 end
 
 function TowerService.Init()
-    RunService.PostSimulation:Connect(function(dt: number)
-        local enemies = EnemyService.GetEnemies()
+	RunService.PostSimulation:Connect(function(_: number)
+		local enemies = EnemyService.GetEnemies()
 
-        for _, tower in towers do
-            if os.clock() - tower.LastDamage < tower.Rate then
-                continue
+		for _, tower in towers do
+			if os.clock() - tower.LastDamage < tower.Rate then
+				continue
+			end
+
+			local target, uniqueId = getTarget(enemies, tower)
+
+			if not target then
+				continue
+			end
+
+            target.Health -= tower.Damage
+
+            if target.Health <= 0 then
+                print(target, uniqueId)
+                EnemyService.KillEnemy(uniqueId)
             end
 
-            local target = getTarget(enemies, tower)
-
-            if not target then
-                continue
-            end
-
-            print("Deal" .. tower.Damage .. " damage to " .. target.Name)
-            tower.LastDamage = os.clock()
-        end
-    end)
+			tower.LastDamage = os.clock()
+		end
+	end)
 end
 
 return TowerService

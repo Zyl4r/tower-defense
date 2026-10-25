@@ -1,3 +1,4 @@
+local HttpService = game:GetService("HttpService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 
@@ -13,6 +14,7 @@ export type Enemy = {
     MaxHealth: number,
     WalkSpeed: number,
     Id: string,
+    UniqueId: string,
     SpawnedAt: number, --time
     DistanceTravelled: number,
     Position: Vector3
@@ -26,26 +28,40 @@ function EnemyService.GetEnemies()
     return enemies
 end
 
+function EnemyService.KillEnemy(uniqueId: string)
+    local enemy = enemies[uniqueId]
+
+    if not enemy then
+        return
+    end
+
+    EnemyPackets.packets.killEnemy.sendToAll(uniqueId)
+    
+    enemies[uniqueId] = nil
+end
+
 function EnemyService.SpawnEnemy()
+    local uniqueId = "enemy_" .. HttpService:GenerateGUID(false)
     local newEnemy: Enemy = {
         Name = "Test",
-        Health = 100,
-        MaxHealth = 100,
+        Health = 6,
+        MaxHealth = 6,
         WalkSpeed = 3,
         Id = "test",
+        UniqueId = uniqueId,
 
         SpawnedAt = workspace:GetServerTimeNow(),
         DistanceTravelled = 0,
         Position = mapPath:GetPosition(0)
     }
 
-    table.insert(enemies, newEnemy)
+    enemies[uniqueId] = newEnemy
     EnemyPackets.packets.spawnEnemy.sendToAll(newEnemy)
 end
 
 function EnemyService.Init()
     RunService.PostSimulation:Connect(function(dt: number)
-        for i, enemy: Enemy in enemies do
+        for _, enemy: Enemy in enemies do
             local travelDistance = enemy.WalkSpeed * dt
             enemy.DistanceTravelled += travelDistance
 
@@ -53,7 +69,8 @@ function EnemyService.Init()
 
             if alpha >= 1 then
                 print("enemy " .. enemy.Name .. " reached end")
-                table.remove(enemies, i)
+                enemies[enemy.UniqueId] = nil
+                continue
             end
 
             enemy.Position = mapPath:GetPosition(alpha)

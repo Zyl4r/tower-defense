@@ -5,7 +5,6 @@ local StarterPlayer = game:GetService("StarterPlayer")
 
 local MouseUtils = require(StarterPlayer.StarterPlayerScripts.client.core.utils.MouseUtils)
 local PlacementPackets = require(ReplicatedStorage.shared.features.placement.PlacementPackets)
-local TowerPackets = require(ReplicatedStorage.shared.features.towers.TowerPackets)
 
 local inputs = ReplicatedStorage.Inputs.Placement
 
@@ -21,13 +20,12 @@ function isPointInPart(point: Vector3, part: BasePart)
        and math.abs(volumeSpacePoint.Z) <= part.Size.Z / 2 + padding
 end
 
-
 function PlacementController.RenderPreview(
 	_modelName: string,
 	_initialPosition: Vector3
 ): BasePart --Make it return a model later
 	local model = Instance.new("Part")
-	model.Size = Vector3.new(1, 3, 2)
+	model.Size = Vector3.new(2, 3, 1)
 	model.Name = "TestModel"
 	model.Anchored = true
 	model.CanCollide = false
@@ -117,19 +115,6 @@ function PlacementController.Init()
 	inputs.PlaceTower.Pressed:Connect(PlacementController.PlaceTower)
 	inputs.RotateTower.Pressed:Connect(PlacementController.RotatePreview)
 	inputs.CancelPlacement.Pressed:Connect(PlacementController.CancelPreview)
-
-	TowerPackets.packets.spawnTower.listen(function(data: { cf: CFrame, towerId: string }, _: Player?)
-		--Get a tower model from ReplicatedStorage
-		local model = Instance.new("Part")
-		model.Size = Vector3.new(1, 3, 2)
-		model.Name = "TestModel"
-		model.Anchored = true
-		model.CanCollide = false
-		model.CastShadow = false
-		model.CanQuery = false
-		model.CFrame = data.cf
-		model.Parent = workspace.Map.PlacementObjects.Placed
-	end)
 end
 
 return PlacementController
