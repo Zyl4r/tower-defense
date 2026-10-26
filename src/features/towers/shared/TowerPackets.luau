@@ -8,7 +8,8 @@ return ByteNet.defineNamespace("towerPackets", function()
             spawnTower = ByteNet.definePacket({
                 value = ByteNet.struct({
                     towerId = ByteNet.string,
-                    cf = ByteNet.cframe
+                    cf = ByteNet.cframe,
+                    spawnTime = ByteNet.uint16
                 })
             })
         }

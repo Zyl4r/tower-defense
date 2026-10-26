@@ -85,6 +85,7 @@ function TowerService.SpawnTower(towerId: string, cf: CFrame)
 	TowerPackets.packets.spawnTower.sendToAll({
 		towerId = towerId,
 		cf = cf,
+        spawnTime = newTower.LastDamage
 	})
 end
 
@@ -106,7 +107,6 @@ function TowerService.Init()
             target.Health -= tower.Damage
 
             if target.Health <= 0 then
-                print(target, uniqueId)
                 EnemyService.KillEnemy(uniqueId)
             end
 

@@ -22,6 +22,10 @@ local function getTarget(enemies, tower)
 			continue
 		end
 
+        if enemy.Health <= 0 then
+            continue
+        end
+
 		-- Fast squared-distance calculation
 		local offset = enemy.Position - towerPos
 		local distanceSquared = (offset.X * offset.X) + (offset.Y * offset.Y) + (offset.Z * offset.Z)
@@ -58,7 +62,7 @@ local function getTarget(enemies, tower)
 end
 
 function TowerController.Init()
-	TowerPackets.packets.spawnTower.listen(function(data: { cf: CFrame, towerId: string }, _: Player?)
+	TowerPackets.packets.spawnTower.listen(function(data: { cf: CFrame, towerId: string, spawnTime: number }, _: Player?)
 		--Get a tower model from ReplicatedStorage
 		local model = Instance.new("Part")
 		model.Size = Vector3.new(2, 3, 1)
@@ -72,8 +76,8 @@ function TowerController.Init()
 
         local towerData = {
             renderedModel = model,
-            LastDamage = -math.huge,
-            Range = 5,
+            LastDamage = data.spawnTime,
+            Range = 6,
             Position = data.cf.Position,
             TargetMode = "First"
         }
