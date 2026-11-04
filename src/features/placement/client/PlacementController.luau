@@ -4,12 +4,13 @@ local RunService = game:GetService("RunService")
 local StarterPlayer = game:GetService("StarterPlayer")
 
 local MouseUtils = require(StarterPlayer.StarterPlayerScripts.client.core.utils.MouseUtils)
+local TowerController = require(StarterPlayer.StarterPlayerScripts.client.features.towers.TowerController)
 local PlacementPackets = require(ReplicatedStorage.shared.features.placement.PlacementPackets)
 
 local inputs = ReplicatedStorage.Inputs.Placement
 
 local PlacementController = {}
-PlacementController.CurrentPreviewTower = nil :: BasePart?
+PlacementController.CurrentPreviewTower = nil :: Model?
 
 function isPointInPart(point: Vector3, part: BasePart)
     local volumeSpacePoint = part.CFrame:PointToObjectSpace(point)
@@ -24,16 +25,10 @@ function PlacementController.RenderPreview(
 	_modelName: string,
 	_initialPosition: Vector3
 ): BasePart --Make it return a model later
-	local model = Instance.new("Part")
-	model.Size = Vector3.new(2, 3, 1)
-	model.Name = "TestModel"
-	model.Anchored = true
-	model.CanCollide = false
-	model.CastShadow = false
-	model.CanQuery = false
-	model.Parent = workspace.Map.PlacementObjects.Preview
+	local newModel = ReplicatedStorage.Assets.Towers.TowerTemplate:Clone()
+    newModel.Parent = workspace.Map.PlacementObjects.Preview
 
-	return model
+	return newModel
 end
 
 function PlacementController.PlaceTower()
@@ -45,7 +40,7 @@ function PlacementController.PlaceTower()
 
 	PlacementPackets.packets.ValidatePlacement.send({
 		towerId = "",
-		cf = selectedTower.CFrame,
+		cf = selectedTower:GetPivot(),
 	})
 
 	PlacementController.CancelPreview()
@@ -70,8 +65,8 @@ function PlacementController.PreviewPlacement(_modelName: string)
 		end
 
 		local worldPos = MouseUtils.GetWorldPosition(workspace.Map)
-		local newPos = Vector3.new(worldPos.X, worldPos.Y + currentTower.Size.Y / 2, worldPos.Z)
-		currentTower.CFrame = CFrame.new(newPos) * currentTower.CFrame.Rotation
+		local newPos = Vector3.new(worldPos.X, worldPos.Y + currentTower.PrimaryPart.Size.Y / 2, worldPos.Z)
+		currentTower:PivotTo(CFrame.new(newPos) * currentTower:GetPivot().Rotation)
 
         local target = MouseUtils.GetMouseTarget(workspace.Map.PlacementObjects)
 
@@ -79,11 +74,24 @@ function PlacementController.PreviewPlacement(_modelName: string)
             return
         end
 
-		if target:HasTag("InvalidPlacement") and isPointInPart(worldPos, target) then
-			currentTower.BrickColor = BrickColor.new("Really red")
-		else
-			currentTower.BrickColor = BrickColor.new("Lime green")
-		end
+        local isValid = target:HasTag("InvalidPlacement") and isPointInPart(worldPos, target) or not TowerController.GetNearTowers(worldPos, 1.5, true)
+        local hightlightColor = if isValid then Color3.fromRGB(255, 0, 0) else Color3.fromRGB(255, 255, 255)
+
+        for _, item in currentTower:GetDescendants() do
+            if item.Name == "TowerModel" then
+                continue
+            end
+
+            if item:IsA("Highlight") then
+                item.FillColor = hightlightColor
+                item.OutlineColor = hightlightColor
+                continue
+            end
+
+            if item:IsA("BasePart") then
+                item.Color = hightlightColor
+            end
+        end
 	end)
 end
 
@@ -94,7 +102,7 @@ function PlacementController.RotatePreview()
 		return
 	end
 
-	currentTower.CFrame = currentTower.CFrame * CFrame.Angles(0, math.rad(45), 0)
+	currentTower:PivotTo(currentTower:GetPivot() * CFrame.Angles(0, math.rad(45), 0))
 end
 
 function PlacementController.CancelPreview()

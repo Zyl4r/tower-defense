@@ -12,6 +12,7 @@ export type Tower = {
 	Rate: number,
 	Range: number,
 	Position: Vector3,
+    OccupyingRadius: number,
 	TargetMode: "First" | "Last" | "Strongest" | "Weakest",
 	LastDamage: number,
 }
@@ -77,6 +78,7 @@ function TowerService.SpawnTower(towerId: string, cf: CFrame)
 		Range = 6,
 		Position = cf.Position,
 		TargetMode = "First",
+        OccupyingRadius = 1.5,
 		LastDamage = os.clock(),
 	}
 

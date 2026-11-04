@@ -15,16 +15,16 @@ local function getTarget(enemies, tower)
 
 	local bestEnemy = nil
 	local bestMetric = -1
-    local index = nil
+	local index = nil
 
 	for i, enemy in enemies do
 		if not enemy.Position then
 			continue
 		end
 
-        if enemy.Health <= 0 then
-            continue
-        end
+		if enemy.Health <= 0 then
+			continue
+		end
 
 		-- Fast squared-distance calculation
 		local offset = enemy.Position - towerPos
@@ -38,58 +38,100 @@ local function getTarget(enemies, tower)
 				if enemy.DistanceTravelled > bestMetric then
 					bestMetric = enemy.DistanceTravelled
 					bestEnemy = enemy
-                    index = i
+					index = i
 				end
 			elseif targetingMode == "Last" then
 				-- "Last" means the lowest DistanceTravelled
 				if bestMetric == -1 or enemy.DistanceTravelled < bestMetric then
 					bestMetric = enemy.DistanceTravelled
 					bestEnemy = enemy
-                    index = i
+					index = i
 				end
 			elseif targetingMode == "Strongest" then
 				-- "Strongest" looks at enemy health
 				if enemy.Health > bestMetric then
 					bestMetric = enemy.Health
 					bestEnemy = enemy
-                    index = i
+					index = i
 				end
 			end
 		end
 	end
 
-	return bestEnemy, index -- Returns the enemy data object (or nil if none in range)
+	return bestEnemy, index
+end
+
+function TowerController.GetNearTowers(point: Vector3, radius: number, validateOnly: boolean?)
+    local foundTowers = {}
+
+    for _, tower in renderedTowers do
+        if not tower.Position then
+            continue
+        end
+
+        local towerRadius = tower.OccupyingRadius
+        if not towerRadius then
+            warn("Tower missing OccupyingRadius:", tower)
+            towerRadius = 1.5
+        end
+
+        local minAllowedDistance = radius + towerRadius
+        local minAllowedDistanceSquared = (minAllowedDistance ^ 2)
+
+        -- Compare on the ground plane only (ignore height)
+        local dx = point.X - tower.Position.X
+        local dz = point.Z - tower.Position.Z
+        local actualDistanceSquared = (dx * dx + dz * dz)
+
+        if actualDistanceSquared + 0.5 < minAllowedDistanceSquared  then
+            if validateOnly == true then
+                return false
+            end
+
+            table.insert(foundTowers, tower)
+        end
+    end
+
+    if validateOnly then
+        return true
+    end
+
+    return foundTowers
 end
 
 function TowerController.Init()
-	TowerPackets.packets.spawnTower.listen(function(data: { cf: CFrame, towerId: string, spawnTime: number }, _: Player?)
-		--Get a tower model from ReplicatedStorage
-		local model = Instance.new("Part")
-		model.Size = Vector3.new(2, 3, 1)
-		model.Name = "TestModel"
-		model.Anchored = true
-		model.CanCollide = false
-		model.CastShadow = false
-		model.CanQuery = false
-		model.CFrame = data.cf
-		model.Parent = workspace.Map.PlacementObjects.Placed
+	TowerPackets.packets.spawnTower.listen(
+		function(data: { cf: CFrame, towerId: string, spawnTime: number }, _: Player?)
+			--Get a tower model from ReplicatedStorage
+			local newModel = ReplicatedStorage.Assets.Towers.TowerTemplate:Clone()
+			newModel:PivotTo(data.cf)
+			newModel.RangeDiameter.Inner.Transparency = 1
+			newModel.RangeDiameter.Outer.Transparency = 1
+			newModel.TowerModel.Highlight.OutlineTransparency = 1
+            newModel.OccupyingDiameter.Inner.Transparency = 1
 
-        local towerData = {
-            renderedModel = model,
-            LastDamage = data.spawnTime,
-            Range = 6,
-            Position = data.cf.Position,
-            TargetMode = "First"
-        }
+            print(newModel.OccupyingDiameter.Outer.Size.Z)
 
-        table.insert(renderedTowers, towerData)
-	end)
+			newModel.Parent = workspace.Map.PlacementObjects.Placed
 
-    RunService.PreRender:Connect(function(_: number)
-        local enemies = EnemyController.GetEnemies()
+			local towerData = {
+				renderedModel = newModel,
+				LastDamage = data.spawnTime,
+				Range = 6,
+				Position = data.cf.Position,
+				TargetMode = "First",
+				OccupyingRadius = 1.5,
+			}
 
-        for _, tower in renderedTowers do
-            if os.clock() - tower.LastDamage < 1 then
+			table.insert(renderedTowers, towerData)
+		end
+	)
+
+	RunService.PreRender:Connect(function(_: number)
+		local enemies = EnemyController.GetEnemies()
+
+		for _, tower in renderedTowers do
+			if os.clock() - tower.LastDamage < 1 then
 				continue
 			end
 
@@ -99,12 +141,17 @@ function TowerController.Init()
 				continue
 			end
 
-            target.Health -= 2
+			target.Health -= 2
 
-			tower.renderedModel.CFrame = CFrame.lookAt(tower.renderedModel.Position, Vector3.new(target.Position.X, tower.renderedModel.Position.Y, target.Position.Z))
-            tower.LastDamage = os.clock()
-        end
-    end)
+			tower.renderedModel:PivotTo(
+				CFrame.lookAt(
+					tower.renderedModel.PrimaryPart.Position,
+					Vector3.new(target.Position.X, tower.renderedModel.PrimaryPart.Position.Y, target.Position.Z)
+				)
+			)
+			tower.LastDamage = os.clock()
+		end
+	end)
 end
 
 return TowerController
