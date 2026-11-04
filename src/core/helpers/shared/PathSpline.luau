@@ -3,6 +3,7 @@ PathSpline.__index = PathSpline
 
 local TURN_RADIUS = 6
 
+-- Math helper formulas
 local function getQuadraticBezierPoint(t, p0, p1, p2)
 	local l1 = p0:Lerp(p1, t)
 	local l2 = p1:Lerp(p2, t)
@@ -22,13 +23,16 @@ function PathSpline.new(waypointFolder)
 	for _, p in ipairs(parts) do
 		table.insert(rawPoints, p.Position)
 	end
-
-	local bakedPoints = {}
-	table.insert(bakedPoints, rawPoints[1])
-
+	
+	-- 2. Analyze waypoints and group them into distinct geometric sections
+	-- Sections can either be a "Straight" line or a "Curve" corner
+	local sections = {}
+	
+	local lastEnd = rawPoints[1]
+	
 	for i = 2, #rawPoints - 1 do
 		local p0 = rawPoints[i - 1]
-		local p1 = rawPoints[i]
+		local p1 = rawPoints[i] -- The corner
 		local p2 = rawPoints[i + 1]
 
 		local dir1 = (p1 - p0).Unit
@@ -36,49 +40,57 @@ function PathSpline.new(waypointFolder)
 
 		local isStraight = dir1:Dot(dir2) > 0.999
 
-		if isStraight then
-			table.insert(bakedPoints, p1)
-		else
+		if not isStraight then
 			local startCurve = p1 - (dir1 * math.min(TURN_RADIUS, (p1 - p0).Magnitude * 0.4))
 			local endCurve = p1 + (dir2 * math.min(TURN_RADIUS, (p2 - p1).Magnitude * 0.4))
-
-			local cornerSegments = 12
-			for step = 0, cornerSegments do
-				local t = step / cornerSegments
-				table.insert(bakedPoints, getQuadraticBezierPoint(t, startCurve, p1, endCurve))
-			end
+			
+			-- Add the straight line leading UP to the turn
+			table.insert(sections, {Type = "Straight", P0 = lastEnd, P1 = startCurve})
+			-- Add the perfect mathematical curve zone
+			table.insert(sections, {Type = "Curve", P0 = startCurve, P1 = p1, P2 = endCurve})
+			
+			lastEnd = endCurve
 		end
 	end
-	table.insert(bakedPoints, rawPoints[#rawPoints])
-
-	self.Points = bakedPoints
-	self.NumPoints = #bakedPoints
+	
+	-- Add the final straight line leading to the end base
+	table.insert(sections, {Type = "Straight", P0 = lastEnd, P1 = rawPoints[#rawPoints]})
+	
+	self.Sections = sections
+	self.NumSections = #sections
 
 	self:BakeDistanceLUT()
 
 	return self
 end
 
+-- Evaluates the raw path using dynamic mathematical equations instead of segment lists
 function PathSpline:_GetRawPosition(t)
 	t = math.clamp(t, 0, 1)
 	if t >= 1 then
-		return self.Points[self.NumPoints]
+		local lastSec = self.Sections[self.NumSections]
+		return lastSec.Type == "Straight" and lastSec.P1 or lastSec.P2
 	end
 
-	local scaledT = t * (self.NumPoints - 1)
+	local scaledT = t * self.NumSections
 	local index = math.floor(scaledT) + 1
 	local localT = scaledT - math.floor(scaledT)
 
-	local pA = self.Points[index]
-	local pB = self.Points[math.min(self.NumPoints, index + 1)]
-
-	return pA:Lerp(pB, localT)
+	local sec = self.Sections[index]
+	
+	if sec.Type == "Straight" then
+		-- Perfect linear line interpolation
+		return sec.P0:Lerp(sec.P1, localT)
+	else
+		-- Pure mathematical quadratic bezier curve evaluation
+		return getQuadraticBezierPoint(localT, sec.P0, sec.P1, sec.P2)
+	end
 end
 
 function PathSpline:BakeDistanceLUT()
 	local lut = {}
 	local totalLength = 0
-	local samples = 400
+	local samples = 600 -- Increased resolution slightly for perfect precision mapping
 
 	local prevPos = self:_GetRawPosition(0)
 	table.insert(lut, { Length = 0, RawT = 0 })
@@ -104,11 +116,11 @@ end
 function PathSpline:GetPosition(t)
 	t = math.clamp(t, 0, 1)
 	local targetLength = t * self.TotalLength
-
+	
 	local lut = self.DistanceLUT
 	local low = 1
 	local high = #lut
-
+	
 	while low < high - 1 do
 		local mid = math.floor((low + high) / 2)
 		if lut[mid].Length < targetLength then
@@ -117,16 +129,16 @@ function PathSpline:GetPosition(t)
 			high = mid
 		end
 	end
-
+	
 	local sampleA = lut[low]
 	local sampleB = lut[high]
-
+	
 	local lengthDiff = sampleB.Length - sampleA.Length
 	local localRatio = 0
 	if lengthDiff > 0 then
 		localRatio = (targetLength - sampleA.Length) / lengthDiff
 	end
-
+	
 	local correctRawT = sampleA.RawT + (localRatio * (sampleB.RawT - sampleA.RawT))
 	return self:_GetRawPosition(correctRawT)
 end

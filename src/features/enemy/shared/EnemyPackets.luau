@@ -12,12 +12,17 @@ return ByteNet.defineNamespace("enemyPackets", function()
 					MaxHealth = ByteNet.uint32,
 					WalkSpeed = ByteNet.uint8,
 					Id = ByteNet.string,
+                    UniqueId = ByteNet.string,
 
 					SpawnedAt = ByteNet.uint16,
 					DistanceTravelled = ByteNet.uint16,
                     Position = ByteNet.vec3
 				}),
 			}),
+
+            killEnemy = ByteNet.definePacket({
+                value = ByteNet.string
+            })
 		},
 	}
 end)

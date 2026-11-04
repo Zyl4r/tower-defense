@@ -5,7 +5,7 @@ local ByteNet = require(ReplicatedStorage.Packages.ByteNet)
 return ByteNet.defineNamespace("placementPackets", function()
 	return {
 		packets = {
-			placeTower = ByteNet.definePacket({
+			ValidatePlacement = ByteNet.definePacket({
 				value = ByteNet.struct({
                     towerId = ByteNet.string,
                     cf = ByteNet.cframe
